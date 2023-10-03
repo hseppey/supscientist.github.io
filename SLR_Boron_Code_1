@@ -69,9 +69,25 @@ void loop(void)
   If not connected, still get/print value then go to SLEEP_STATE.
   ***/
   case PUBLISH_STATE: {
-    // Reinitialize sum variable prior to every loop execution
-    //dist_in_sum = 0; 
-    
+    ***Collects, prints, saves, and publishes data.***
+
+    // Collect data
+    range_cm = COLLECT_DATA()
+
+    // Print data
+    PRINT_DATA(range_cm)
+
+    // Save data
+    SAVE_DATA(range_cm)
+
+    // Publish data
+    PUBLISH_DATA(range_cm)
+
+case COLLECT_DATA(): {
+***Collects distance data from ultrasonic sensor***
+// Reinitialize sum variable prior to every loop execution
+//dist_in_sum = 0;
+
     // Take multiple measurements and store in array
     for (int sample = 0; sample < 200; sample++) {
       filterArray[sample] = (analogRead(A1));
@@ -105,14 +121,17 @@ void loop(void)
   // "Real" time and current millis for logging
   real_time = Time.now();
   millis_now = millis();
+}
 
-
-      // Print out distance
+case PRINT_DATA(range_cm): {
+      *** Prints out distance data to serial port.***
        Serial.print("Time: ");
        Serial.print(real_time);
        Serial.print(", Distance(cm): ");
        Serial.print(range_cm);
-      
+}
+case SAVE_DATA(range_cm): {
+***Saves distance sata to the SD card.***
       // Start SD stuff
        File myFile; 
                  
@@ -139,7 +158,9 @@ void loop(void)
 
       delay(100);
     //}
-    
+
+case PUBLISH_DATA(range_cm): {
+***Publishes distance data to the cloud.***
     // Prep for cellular transmission
     bool isMaxTime = false;
     stateTime = millis();
